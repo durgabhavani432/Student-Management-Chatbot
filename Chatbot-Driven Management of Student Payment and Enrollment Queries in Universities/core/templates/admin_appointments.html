@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Appointment Requests{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1>📅 Appointment Requests</h1>
+                <p>Manage student meeting, call, and chat session requests</p>
+            </div>
+            {% if pending_count > 0 %}
+            <span style="background:#fef9c3;color:#854d0e;padding:8px 16px;border-radius:20px;font-size:.88rem;font-weight:600;border:1.5px solid #fde68a;">
+                ⏳ {{ pending_count }} Pending
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Filter -->
+        <div class="card" style="margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <form method="get" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input type="text" name="q" value="{{ search }}" placeholder="Search student..."
+                       style="padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.87rem;width:200px;outline:none;">
+                <select name="status" style="padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.87rem;outline:none;">
+                    <option value="">All Status</option>
+                    {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-indigo">🔍 Filter</button>
+                <a href="{% url 'admin_appointments' %}" class="btn btn-outline">Clear</a>
+            </form>
+        </div>
+
+        <!-- Appointments Table -->
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Topic</th>
+                            <th>Mode</th>
+                            <th>Pref. Date</th>
+                            <th>Pref. Time</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td><strong>{{ appt.student.username }}</strong><br><span style="font-size:.75rem;color:#94a3b8;">{{ appt.student.email }}</span></td>
+                            <td>{{ appt.get_topic_display }}</td>
+                            <td>
+                                {% if appt.mode == 'in_person' %}<span class="badge badge-blue">🏢 In-Person</span>
+                                {% elif appt.mode == 'call' %}<span class="badge badge-green">📞 Call</span>
+                                {% elif appt.mode == 'chat' %}<span class="badge badge-amber">💬 Chat</span>{% endif %}
+                            </td>
+                            <td style="color:#64748b; font-size:.85rem;">{{ appt.preferred_date|date:"M d, Y" }}</td>
+                            <td style="color:#64748b; font-size:.85rem;">{{ appt.preferred_time|time:"H:i" }}</td>
+                            <td style="font-size:.82rem; color:#64748b; max-width:150px;">{{ appt.description|truncatechars:40|default:"—" }}</td>
+                            <td>
+                                {% if appt.status == 'pending' %}<span class="badge badge-amber">⏳ Pending</span>
+                                {% elif appt.status == 'confirmed' %}<span class="badge badge-green">✅ Confirmed</span>
+                                {% elif appt.status == 'cancelled' %}<span class="badge badge-red">❌ Cancelled</span>
+                                {% elif appt.status == 'completed' %}<span class="badge badge-blue">✔️ Done</span>
+                                {% elif appt.status == 'rescheduled' %}<span class="badge">🔄 Rescheduled</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_appointment_action' appt.id %}"
+                                   style="background:#ede9fe;color:#4f46e5;padding:6px 12px;border-radius:7px;font-size:.78rem;text-decoration:none;display:inline-block;">
+                                    ⚙️ Manage
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:40px;">No appointment requests yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}Book Appointment{% endblock %}
+{% block body %}
+<div style="min-height:100vh; background:#f1f5f9; font-family:'Poppins',sans-serif; padding:30px 20px;">
+    <div style="max-width:940px; margin:0 auto;">
+
+        <div style="margin-bottom:24px;">
+            <a href="{% url 'chatbot' %}" style="color:#4f46e5; font-size:.85rem; text-decoration:none;"><i class="fa fa-arrow-left"></i> Back to Chatbot</a>
+            <h1 style="font-size:1.7rem; font-weight:700; color:#1e293b; margin-top:6px;">📅 Appointment Booking</h1>
+            <p style="color:#64748b; font-size:.87rem;">Book a meeting, phone call, or chat session with university support staff</p>
+        </div>
+
+        {% if success %}
+        <div style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <i class="fa fa-circle-check"></i> {{ success }}
+        </div>
+        {% endif %}
+        {% if error %}
+        <div style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <i class="fa fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:24px; align-items:start;">
+
+            <!-- Booking Form -->
+            <div style="background:white; border-radius:16px; padding:28px; box-shadow:0 2px 12px rgba(0,0,0,.06);">
+                <h3 style="font-size:1rem; font-weight:600; color:#1e293b; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa fa-calendar-plus" style="color:#4f46e5;"></i> Request New Appointment
+                </h3>
+
+                <!-- Mode Cards -->
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <label style="flex:1; cursor:pointer;">
+                        <input type="radio" name="mode_select" value="in_person" checked style="display:none;">
+                        <div class="mode-card" data-mode="in_person" style="background:#ede9fe; border:2px solid #4f46e5; border-radius:10px; padding:12px; text-align:center; font-size:.82rem; font-weight:600; color:#4f46e5; transition:.2s;">
+                            🏢 In-Person
+                        </div>
+                    </label>
+                    <label style="flex:1; cursor:pointer;">
+                        <input type="radio" name="mode_select" value="call" style="display:none;">
+                        <div class="mode-card" data-mode="call" style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; font-size:.82rem; font-weight:600; color:#64748b; transition:.2s;">
+                            📞 Phone Call
+                        </div>
+                    </label>
+                    <label style="flex:1; cursor:pointer;">
+                        <input type="radio" name="mode_select" value="chat" style="display:none;">
+                        <div class="mode-card" data-mode="chat" style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; font-size:.82rem; font-weight:600; color:#64748b; transition:.2s;">
+                            💬 Chat
+                        </div>
+                    </label>
+                </div>
+
+                <form method="post" id="apptForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="mode" id="modeInput" value="in_person">
+
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block; font-size:.78rem; font-weight:600; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Topic / Subject</label>
+                        <select name="topic" style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:.92rem; font-family:inherit; outline:none; background:white;">
+                            {% for val, label in topic_choices %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <label style="display:block; font-size:.78rem; font-weight:600; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Preferred Date</label>
+                            <input type="date" name="preferred_date" required
+                                   style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:.92rem; font-family:inherit; outline:none;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:.78rem; font-weight:600; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Preferred Time</label>
+                            <input type="time" name="preferred_time" required
+                                   style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:.92rem; font-family:inherit; outline:none;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block; font-size:.78rem; font-weight:600; color:#64748b; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Description (Optional)</label>
+                        <textarea name="description" rows="3" placeholder="Briefly describe what you need help with..."
+                                  style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:.92rem; font-family:inherit; outline:none; resize:vertical;"></textarea>
+                    </div>
+                    <button type="submit" style="width:100%; padding:13px; border:none; border-radius:9px; background:linear-gradient(135deg,#4f46e5,#9333ea); color:white; font-size:.95rem; font-weight:600; cursor:pointer;">
+                        <i class="fa fa-calendar-check"></i> Submit Appointment Request
+                    </button>
+                </form>
+            </div>
+
+            <!-- My Appointments -->
+            <div style="background:white; border-radius:16px; padding:28px; box-shadow:0 2px 12px rgba(0,0,0,.06);">
+                <h3 style="font-size:1rem; font-weight:600; color:#1e293b; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa fa-list-check" style="color:#9333ea;"></i> My Appointments
+                </h3>
+                <div style="display:flex; flex-direction:column; gap:12px; max-height:500px; overflow-y:auto;">
+                    {% for appt in appointments %}
+                    <div style="border:1.5px solid
+                        {% if appt.status == 'confirmed' %}#bbf7d0
+                        {% elif appt.status == 'pending' %}#fde68a
+                        {% elif appt.status == 'cancelled' %}#fecaca
+                        {% elif appt.status == 'completed' %}#c7d2fe
+                        {% else %}#e2e8f0{% endif %};
+                        border-radius:12px; padding:16px;">
+                        <div style="display:flex; align-items:start; justify-content:space-between; gap:8px;">
+                            <div>
+                                <div style="font-weight:600; font-size:.9rem; color:#1e293b; margin-bottom:4px;">{{ appt.get_topic_display }}</div>
+                                <div style="font-size:.8rem; color:#64748b; margin-bottom:6px;">
+                                    {{ appt.get_mode_display }} &bull; {{ appt.preferred_date|date:"M d, Y" }} at {{ appt.preferred_time|time:"H:i" }}
+                                </div>
+                                {% if appt.admin_notes %}
+                                <div style="font-size:.8rem; background:#f8fafc; padding:8px 10px; border-radius:7px; color:#475569; margin-top:6px;">
+                                    <strong>Admin:</strong> {{ appt.admin_notes }}
+                                </div>
+                                {% endif %}
+                                {% if appt.status == 'confirmed' and appt.confirmed_date %}
+                                <div style="font-size:.8rem; color:#166534; margin-top:4px;">📅 Confirmed: {{ appt.confirmed_date }} at {{ appt.confirmed_time|default:"—" }}</div>
+                                {% endif %}
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:end; gap:6px;">
+                                {% if appt.status == 'confirmed' %}
+                                    <span style="background:#f0fdf4;color:#166534;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;white-space:nowrap;">✅ Confirmed</span>
+                                {% elif appt.status == 'pending' %}
+                                    <span style="background:#fefce8;color:#854d0e;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;white-space:nowrap;">⏳ Pending</span>
+                                    <form method="post" action="{% url 'cancel_appointment' appt.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" style="border:none;background:#fef2f2;color:#ef4444;padding:4px 10px;border-radius:8px;font-size:.73rem;cursor:pointer;">Cancel</button>
+                                    </form>
+                                {% elif appt.status == 'cancelled' %}
+                                    <span style="background:#fef2f2;color:#991b1b;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;">❌ Cancelled</span>
+                                {% elif appt.status == 'completed' %}
+                                    <span style="background:#ede9fe;color:#4f46e5;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;">✔️ Done</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align:center; color:#94a3b8; padding:30px 0; font-size:.88rem;">No appointments yet. Book one using the form!</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.mode-card').forEach(c => {
+            c.style.background = '#f8fafc';
+            c.style.borderColor = '#e2e8f0';
+            c.style.color = '#64748b';
+        });
+        card.style.background = '#ede9fe';
+        card.style.borderColor = '#4f46e5';
+        card.style.color = '#4f46e5';
+        document.getElementById('modeInput').value = card.dataset.mode;
+    });
+});
+</script>
+{% endblock %}

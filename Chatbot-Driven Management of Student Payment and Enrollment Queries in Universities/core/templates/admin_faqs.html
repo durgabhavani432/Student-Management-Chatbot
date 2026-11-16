@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}FAQ Management{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <h1>❓ FAQ / Knowledge Base</h1>
+                <p>Manage the chatbot's knowledge — add, edit, or remove Q&amp;A entries</p>
+            </div>
+            <a href="{% url 'admin_faq_add' %}" class="btn btn-indigo"><i class="fa fa-plus"></i> Add New FAQ</a>
+        </div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Intent / Topic</th>
+                            <th>Question</th>
+                            <th>Answer Preview</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for faq in faqs %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td><span class="badge badge-blue">{{ faq.intent }}</span></td>
+                            <td style="max-width:200px;">{{ faq.question|truncatechars:60 }}</td>
+                            <td style="max-width:250px; color:#64748b;">{{ faq.answer|truncatechars:80 }}</td>
+                            <td style="display:flex; gap:6px;">
+                                <a href="{% url 'admin_faq_edit' faq.id %}" class="btn btn-sm btn-amber">
+                                    <i class="fa fa-pen"></i> Edit
+                                </a>
+                                <form method="post" action="{% url 'admin_faq_delete' faq.id %}" onsubmit="return confirm('Delete this FAQ?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-red"><i class="fa fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">No FAQs added yet. <a href="{% url 'admin_faq_add' %}" style="color:#4f46e5; font-weight:600;">Add one →</a></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>📊 Dashboard</h1>
+            <p>Overview of the chatbot system performance</p>
+        </div>
+
+        <!-- KPI Cards (A6) -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-indigo"><i class="fa fa-users"></i></div>
+                <div>
+                    <div class="kpi-val">{{ total_students }}</div>
+                    <div class="kpi-label">Total Students</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-green"><i class="fa fa-comments"></i></div>
+                <div>
+                    <div class="kpi-val">{{ total_sessions }}</div>
+                    <div class="kpi-label">Active Students</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-purple"><i class="fa fa-message"></i></div>
+                <div>
+                    <div class="kpi-val">{{ total_messages }}</div>
+                    <div class="kpi-label">Total Messages</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-amber"><i class="fa fa-star"></i></div>
+                <div>
+                    <div class="kpi-val">{{ avg_rating }}<span style="font-size:1rem;color:#94a3b8;">/5</span></div>
+                    <div class="kpi-label">Avg. Feedback Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Chat Activity (A4) -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <h3 style="font-size:1rem; font-weight:600;">Recent Chat Activity</h3>
+                <a href="{% url 'admin_chatlogs' %}" class="btn btn-sm btn-outline">View All →</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Message</th>
+                            <th>Bot Reply</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td><strong>{{ log.user.username }}</strong></td>
+                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ log.message }}</td>
+                            <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#64748b;">{{ log.response }}</td>
+                            <td style="white-space:nowrap; color:#94a3b8;">{{ log.timestamp|date:"M d H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:30px;">No chat activity yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

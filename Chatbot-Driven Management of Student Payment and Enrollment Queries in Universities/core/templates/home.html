@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Home — University Chatbot{% endblock %}
+{% block content %}
+<div class="auth-bg">
+    <div style="text-align:center; max-width:600px; padding:20px;">
+        <div style="font-size:4rem; margin-bottom:16px;">🎓</div>
+        <h1 style="color:white; font-size:2.2rem; font-weight:700; margin-bottom:12px;">University Chatbot System</h1>
+        <p style="color:rgba(255,255,255,.8); font-size:1.05rem; margin-bottom:40px;">
+            Manage Enrollment &amp; Payment Queries — 24/7 instant answers powered by AI
+        </p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+            <a href="{% url 'student_login' %}" style="background:white; color:#4f46e5; padding:14px 32px; border-radius:50px; font-weight:700; font-size:1rem; box-shadow:0 4px 20px rgba(0,0,0,.15); display:inline-flex; align-items:center; gap:8px; transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                <i class="fa fa-user-graduate"></i> Student Login
+            </a>
+            <a href="{% url 'admin_login' %}" style="background:rgba(255,255,255,.15); color:white; padding:14px 32px; border-radius:50px; font-weight:700; font-size:1rem; border:2px solid rgba(255,255,255,.4); display:inline-flex; align-items:center; gap:8px; backdrop-filter:blur(8px); transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                <i class="fa fa-shield-halved"></i> Admin Login
+            </a>
+        </div>
+        <p style="color:rgba(255,255,255,.6); margin-top:30px; font-size:0.88rem;">
+            New student? <a href="{% url 'student_register' %}" style="color:white; font-weight:600; text-decoration:underline;">Register here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

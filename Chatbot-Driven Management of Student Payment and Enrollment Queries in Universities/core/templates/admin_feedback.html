@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Feedback Review{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>⭐ Feedback Review</h1>
+            <p>Student ratings and comments on chatbot responses</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-amber"><i class="fa fa-star"></i></div>
+                <div>
+                    <div class="kpi-val">{{ avg_rating }}<span style="font-size:1rem;color:#94a3b8;">/5</span></div>
+                    <div class="kpi-label">Average Rating</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-indigo"><i class="fa fa-comment"></i></div>
+                <div>
+                    <div class="kpi-val">{{ feedbacks.count }}</div>
+                    <div class="kpi-label">Total Reviews</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Question</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fb in feedbacks %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td><strong>{{ fb.user.username }}</strong></td>
+                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.85rem;">
+                                {% if fb.chat_log %}
+                                    <span title="{{ fb.chat_log.message }}">💬 {{ fb.chat_log.message|truncatechars:45 }}</span>
+                                {% else %}
+                                    <span class="badge badge-blue">App Feedback</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="stars">
+                                    {% for i in "12345"|make_list %}{% if forloop.counter <= fb.rating %}★{% else %}☆{% endif %}{% endfor %}
+                                </span>
+                                <span style="font-size:.8rem; color:#94a3b8; margin-left:4px;">{{ fb.rating }}/5</span>
+                            </td>
+                            <td style="max-width:200px; color:#64748b; font-size:.85rem;">{{ fb.comment|default:"—"|truncatechars:60 }}</td>
+                            <td style="white-space:nowrap; color:#94a3b8; font-size:.82rem;">{{ fb.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:30px;">No feedback received yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+<aside class="admin-sidebar">
+    <div class="sidebar-brand">
+        <i class="fa fa-robot"></i> UniBot Admin
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{% url 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}class="active"{% endif %}>
+            <i class="fa fa-gauge"></i> Dashboard
+        </a>
+
+        <div style="font-size:.68rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.8px; padding:10px 18px 4px; margin-top:4px;">Students</div>
+        <a href="{% url 'admin_users' %}" {% if 'admin_user' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-users"></i> User Management
+        </a>
+        <a href="{% url 'admin_fees' %}" {% if 'admin_fee' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-file-invoice-dollar"></i> Fee Management
+        </a>
+        <a href="{% url 'admin_enrollments' %}" {% if 'admin_enrollment' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-graduation-cap"></i> Enrollment Records
+        </a>
+        <a href="{% url 'admin_appointments' %}" {% if 'admin_appointment' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-calendar-check"></i> Appointments
+        </a>
+
+        <div style="font-size:.68rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.8px; padding:10px 18px 4px; margin-top:4px;">Chatbot</div>
+        <a href="{% url 'admin_faqs' %}" {% if 'admin_faq' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-circle-question"></i> FAQ / Knowledge Base
+        </a>
+        <a href="{% url 'admin_chatlogs' %}" {% if 'admin_chatlogs' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-comments"></i> Chat Sessions
+        </a>
+        <a href="{% url 'admin_feedback' %}" {% if 'admin_feedback' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-star"></i> Feedback Review
+        </a>
+
+        <div style="font-size:.68rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.8px; padding:10px 18px 4px; margin-top:4px;">Admin Tools</div>
+        <a href="{% url 'admin_analytics' %}" {% if 'admin_analytics' in request.resolver_match.url_name or 'admin_export' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-chart-bar"></i> Analytics & Reports
+        </a>
+        <a href="{% url 'admin_model_management' %}" {% if 'admin_model' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-brain"></i> Model Management
+        </a>
+        <a href="{% url 'admin_security' %}" {% if 'admin_security' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-shield-halved"></i> Security & Backup
+        </a>
+        <a href="{% url 'admin_notifications' %}" {% if 'admin_notifications' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-bell"></i> Send Notifications
+        </a>
+        <a href="{% url 'admin_maintenance' %}" {% if 'admin_maintenance' in request.resolver_match.url_name %}class="active"{% endif %}>
+            <i class="fa fa-screwdriver-wrench"></i> System Maintenance
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}" style="display:flex; align-items:center; gap:8px; color:#94a3b8; font-size:.85rem; text-decoration:none; padding:8px 0; transition:color .15s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#94a3b8'">
+            <i class="fa fa-right-from-bracket"></i> Logout ({{ request.user.username }})
+        </a>
+    </div>
+</aside>
+
+

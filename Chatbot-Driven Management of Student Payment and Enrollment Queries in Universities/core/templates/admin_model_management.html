@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Model Management{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>🧠 Model Management</h1>
+            <p>Retrain, update, and monitor the NLP/ML chatbot model</p>
+        </div>
+
+        {% if success %}
+        <div class="alert alert-success" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+            <i class="fa fa-circle-check"></i> {{ success }}
+        </div>
+        {% endif %}
+
+        <!-- Model Stats -->
+        <div class="kpi-grid" style="margin-bottom:24px;">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-indigo"><i class="fa fa-circle-question"></i></div>
+                <div>
+                    <div class="kpi-val">{{ faq_count }}</div>
+                    <div class="kpi-label">FAQ Entries (Training Data)</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-purple"><i class="fa fa-comments"></i></div>
+                <div>
+                    <div class="kpi-val">{{ log_count }}</div>
+                    <div class="kpi-label">Total Chat Interactions</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-amber"><i class="fa fa-star"></i></div>
+                <div>
+                    <div class="kpi-val">{{ avg_rating }}<span style="font-size:1rem;color:#94a3b8;">/5</span></div>
+                    <div class="kpi-label">Avg. Response Rating</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-green"><i class="fa fa-comment-dots"></i></div>
+                <div>
+                    <div class="kpi-val">{{ feedback_count }}</div>
+                    <div class="kpi-label">Student Feedbacks</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+
+            <!-- Retrain / Sync -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa fa-rotate" style="color:#4f46e5;"></i> Retrain / Sync Model
+                </h3>
+                <p style="color:#64748b; font-size:.85rem; margin-bottom:20px;">
+                    Updates the chatbot's knowledge base (<code>faq.json</code>) from the current FAQ database.
+                    Run this after adding, editing, or deleting any FAQs so the chatbot responds with the latest information.
+                </p>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:20px;">
+                    <div style="font-size:.82rem; color:#64748b; margin-bottom:4px;">Last Model Sync</div>
+                    <div style="font-size:1rem; font-weight:600; color:#1e293b;">{{ last_sync }}</div>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="retrain">
+                    <button type="submit" class="btn btn-indigo" style="width:100%; justify-content:center; padding:12px;">
+                        <i class="fa fa-brain"></i> Retrain / Sync Knowledge Base
+                    </button>
+                </form>
+            </div>
+
+            <!-- Model Info -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa fa-info-circle" style="color:#9333ea;"></i> Model Information
+                </h3>
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0;">
+                        <span style="font-size:.87rem; color:#64748b;">Model Type</span>
+                        <span class="badge badge-blue">NLP + Keyword Matching</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0;">
+                        <span style="font-size:.87rem; color:#64748b;">Knowledge Base</span>
+                        <span class="badge badge-green">faq.json</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0;">
+                        <span style="font-size:.87rem; color:#64748b;">Training Entries</span>
+                        <span class="badge badge-amber">{{ faq_count }} FAQs</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0;">
+                        <span style="font-size:.87rem; color:#64748b;">Chatbot Status</span>
+                        <span class="badge badge-green">🟢 Online</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0;">
+                        <span style="font-size:.87rem; color:#64748b;">Avg. Rating</span>
+                        <span style="font-weight:600; color:#f59e0b;">{{ avg_rating }} / 5 ⭐</span>
+                    </div>
+                </div>
+                <div style="margin-top:16px; display:flex; gap:10px;">
+                    <a href="{% url 'admin_faqs' %}" class="btn btn-outline" style="flex:1; justify-content:center;">
+                        <i class="fa fa-circle-question"></i> Manage FAQs
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div style="min-height:100vh; background:#f1f5f9; font-family:'Poppins',sans-serif; padding:30px 20px;">
+    <div style="max-width:800px; margin:0 auto;">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
+            <div>
+                <a href="{% url 'chatbot' %}" style="color:#4f46e5; font-size:.85rem; text-decoration:none;">
+                    <i class="fa fa-arrow-left"></i> Back to Chatbot
+                </a>
+                <h1 style="font-size:1.7rem; font-weight:700; color:#1e293b; margin-top:8px;">
+                    🔔 Notifications
+                </h1>
+                <p style="color:#64748b; font-size:.88rem;">Alerts and announcements from the university.</p>
+            </div>
+        </div>
+
+        {% if notifications %}
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            {% for notif in notifications %}
+            <div style="background:white; border-radius:14px; padding:18px 22px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+                        border-left:4px solid {% if notif.notif_type == 'tuition' %}#f59e0b{% elif notif.notif_type == 'enrollment' %}#4f46e5{% else %}#10b981{% endif %};">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                            <span style="font-size:1.2rem;">
+                                {% if notif.notif_type == 'tuition' %}💰{% elif notif.notif_type == 'enrollment' %}📋{% else %}📢{% endif %}
+                            </span>
+                            <h3 style="font-size:.98rem; font-weight:600; color:#1e293b;">{{ notif.title }}</h3>
+                        </div>
+                        <p style="color:#475569; font-size:.88rem; line-height:1.5;">{{ notif.message }}</p>
+                    </div>
+                    <div style="text-align:right; min-width:100px;">
+                        <div style="font-size:.75rem; color:#94a3b8;">{{ notif.created_at|date:"M d, Y" }}</div>
+                        {% if notif.is_read %}
+                        <span style="background:#f1f5f9; color:#94a3b8; font-size:.72rem; padding:2px 8px; border-radius:10px; margin-top:4px; display:inline-block;">Read</span>
+                        {% else %}
+                        <span style="background:#ede9fe; color:#4f46e5; font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:10px; margin-top:4px; display:inline-block;">New</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:60px 20px; background:white; border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.06);">
+            <div style="font-size:3rem; margin-bottom:14px;">🔕</div>
+            <h3 style="color:#1e293b; margin-bottom:8px;">No notifications yet</h3>
+            <p style="color:#64748b; font-size:.9rem;">You'll be notified about tuition deadlines and enrollment updates here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

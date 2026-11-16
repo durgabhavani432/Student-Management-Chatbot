@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Enrollment{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>{% if action == 'Add' %}➕{% else %}✏️{% endif %} {{ action }} Enrollment Record</h1>
+        </div>
+        <div class="card" style="max-width:640px;">
+            {% if error %}
+            <div style="background:#fef2f2;color:#ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;border:1px solid #fecaca;font-size:.88rem;">
+                <i class="fa fa-circle-exclamation"></i> {{ error }}
+            </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                {% if action == 'Add' %}
+                <div class="form-group">
+                    <label>Student <span style="color:#ef4444">*</span></label>
+                    <select name="student_id" required>
+                        <option value="">-- Select Student --</option>
+                        {% for s in students %}
+                        <option value="{{ s.id }}">{{ s.username }} ({{ s.get_full_name|default:s.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                <div style="background:#f8fafc;padding:12px 16px;border-radius:9px;margin-bottom:16px;font-size:.88rem;color:#475569;">
+                    👤 Student: <strong>{{ enrollment.student.username }}</strong>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label>Program / Degree <span style="color:#ef4444">*</span></label>
+                    <input type="text" name="program" value="{{ enrollment.program|default:'' }}" placeholder="e.g. B.Sc Software Engineering" required>
+                </div>
+                <div class="form-group">
+                    <label>Course Name (optional)</label>
+                    <input type="text" name="course_name" value="{{ enrollment.course_name|default:'' }}" placeholder="e.g. Data Structures">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div class="form-group">
+                        <label>Semester <span style="color:#ef4444">*</span></label>
+                        <input type="text" name="semester" value="{{ enrollment.semester|default:'' }}" placeholder="e.g. Semester 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Academic Year</label>
+                        <input type="text" name="academic_year" value="{{ enrollment.academic_year|default:'' }}" placeholder="e.g. 2024-25">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div class="form-group">
+                        <label>Enrollment Date <span style="color:#ef4444">*</span></label>
+                        <input type="date" name="enrollment_date" value="{{ enrollment.enrollment_date|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline (optional)</label>
+                        <input type="date" name="enrollment_deadline" value="{{ enrollment.enrollment_deadline|date:'Y-m-d'|default:'' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if enrollment and enrollment.status == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea name="notes" rows="2" placeholder="Admin notes...">{{ enrollment.notes|default:'' }}</textarea>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:8px;">
+                    <button type="submit" class="btn btn-indigo" style="flex:1; justify-content:center;">
+                        <i class="fa fa-save"></i> {{ action }} Enrollment
+                    </button>
+                    <a href="{% url 'admin_enrollments' %}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}

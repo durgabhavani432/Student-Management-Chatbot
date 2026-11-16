@@ -1,0 +1,69 @@
+{
+  "tution fee": {
+    "keywords": [
+      "tution",
+      "tution fee",
+      "fee",
+      "payment"
+    ],
+    "response": "the tution fee is rs.50000"
+  },
+  "enrollment last date": {
+    "keywords": [
+      "date",
+      "enrollment",
+      "enroll",
+      "enrollment last date",
+      "last"
+    ],
+    "response": "the last date of enrollment is 23-03-2026"
+  },
+  "last date to pay fee": {
+    "keywords": [
+      "last date",
+      "be",
+      "will",
+      "fee",
+      "date",
+      "last",
+      "pay"
+    ],
+    "response": "last date to pay fee is 30-01-2026"
+  },
+  "greetings": {
+    "keywords": [
+      "hi",
+      "hello",
+      "greetings"
+    ],
+    "response": "hello!how can i help you"
+  },
+  "deadlines": {
+    "keywords": [
+      "deadlines",
+      "deadline",
+      "last date",
+      "fee",
+      "pay"
+    ],
+    "response": "the deadline to pay fee is 30-01-2026"
+  },
+  "exams": {
+    "keywords": [
+      "from",
+      "commencement of exams",
+      "date of exams",
+      "commence",
+      "will",
+      "exams"
+    ],
+    "response": "the exams will commmence from 31-03-2026 to 05-04-2026"
+  },
+  "scholarship": {
+    "keywords": [
+      "concession",
+      "scholarship"
+    ],
+    "response": "The university scholarship will be depends on rank that lies between 10% to 60% on the fee"
+  }
+}

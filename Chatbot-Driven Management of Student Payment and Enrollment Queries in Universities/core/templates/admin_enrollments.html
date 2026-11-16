@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Enrollment Management{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1>🎓 Enrollment Management</h1>
+                <p>Manage student program enrollments, statuses, and deadline reminders</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="showEnrollAlert()" class="btn" style="background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:600;font-size:.85rem;">
+                    <i class="fa fa-bell"></i> Send Enrollment Alert
+                </button>
+                <a href="{% url 'admin_enrollment_add' %}" class="btn btn-green">
+                    <i class="fa fa-plus"></i> Add Enrollment
+                </a>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="card" style="margin-bottom:20px;">
+            <form method="get" style="display:flex; gap:10px; align-items:center;">
+                <input type="text" name="q" value="{{ search }}" placeholder="Search student or program..."
+                       style="padding:9px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:.87rem; width:260px; outline:none;">
+                <button type="submit" class="btn btn-indigo">🔍 Search</button>
+                <a href="{% url 'admin_enrollments' %}" class="btn btn-outline">Clear</a>
+            </form>
+        </div>
+
+        <!-- Enrollments Table -->
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Program</th>
+                            <th>Course</th>
+                            <th>Semester</th>
+                            <th>Year</th>
+                            <th>Enrolled</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in enrollments %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td><strong>{{ e.student.username }}</strong></td>
+                            <td style="font-weight:600; color:#1e293b;">{{ e.program|truncatechars:30 }}</td>
+                            <td style="color:#64748b; font-size:.82rem;">{{ e.course_name|default:"—"|truncatechars:25 }}</td>
+                            <td style="color:#64748b;">{{ e.semester }}</td>
+                            <td style="color:#64748b;">{{ e.academic_year }}</td>
+                            <td style="color:#64748b; font-size:.82rem;">{{ e.enrollment_date|date:"M d, Y" }}</td>
+                            <td style="font-size:.82rem; {% if e.enrollment_deadline %}color:#dc2626; font-weight:600;{% else %}color:#94a3b8;{% endif %}">
+                                {{ e.enrollment_deadline|date:"M d, Y"|default:"—" }}
+                            </td>
+                            <td>
+                                {% if e.status == 'enrolled' %}<span class="badge badge-green">✅ Enrolled</span>
+                                {% elif e.status == 'completed' %}<span class="badge badge-blue">🎓 Completed</span>
+                                {% elif e.status == 'pending' %}<span class="badge badge-amber">⏳ Pending</span>
+                                {% elif e.status == 'dropped' %}<span class="badge badge-red">❌ Dropped</span>
+                                {% elif e.status == 'suspended' %}<span class="badge badge-red">⛔ Suspended</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <a href="{% url 'admin_enrollment_edit' e.id %}" style="background:#ede9fe;color:#4f46e5;padding:5px 10px;border-radius:7px;font-size:.75rem;text-decoration:none;">✏️ Edit</a>
+                                    <form method="post" action="{% url 'admin_enrollment_delete' e.id %}" onsubmit="return confirm('Delete this enrollment?')">
+                                        {% csrf_token %}
+                                        <button type="submit" style="background:#fef2f2;color:#ef4444;border:none;padding:5px 10px;border-radius:7px;font-size:.75rem;cursor:pointer;">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="10" style="text-align:center;color:#94a3b8;padding:40px;">No enrollment records. <a href="{% url 'admin_enrollment_add' %}" style="color:#4f46e5;">Add one</a>.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Alert Modal -->
+<div id="enrollAlertModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:28px;width:480px;max-width:95vw;">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px;">📋 Send Enrollment Reminder</h3>
+        <form id="enrollAlertForm">
+            {% csrf_token %}
+            <div style="margin-bottom:16px;">
+                <label style="font-size:.82rem;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">Custom Message (optional)</label>
+                <textarea name="message" rows="3" placeholder="Leave blank for automatic reminder"
+                          style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;outline:none;resize:vertical;"></textarea>
+            </div>
+            <div id="enrollResult" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.87rem;"></div>
+            <div style="display:flex;gap:10px;">
+                <button type="button" onclick="sendEnrollAlert()" style="flex:1;padding:11px;background:#10b981;color:white;border:none;border-radius:9px;font-weight:600;cursor:pointer;">Send Reminders</button>
+                <button type="button" onclick="document.getElementById('enrollAlertModal').style.display='none'" style="padding:11px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:9px;cursor:pointer;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function showEnrollAlert() { document.getElementById('enrollAlertModal').style.display = 'flex'; }
+function sendEnrollAlert() {
+    const fd = new FormData(document.getElementById('enrollAlertForm'));
+    fetch("{% url 'admin_enrollment_alert' %}", {method:'POST', body:fd})
+        .then(r=>r.json()).then(d=>{
+            const res = document.getElementById('enrollResult');
+            res.style.display = 'block';
+            res.style.background = d.status==='ok' ? '#f0fdf4' : '#fef2f2';
+            res.style.color = d.status==='ok' ? '#166534' : '#991b1b';
+            res.textContent = d.message;
+        });
+}
+</script>
+{% endblock %}

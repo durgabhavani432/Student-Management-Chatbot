@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Send Notifications{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <h1>🔔 Send Notifications</h1>
+            <p>Broadcast alerts to all students — tuition deadlines, enrollment updates, and announcements</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:24px; align-items:start;">
+
+            <!-- Send Form -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:18px;">New Notification</h3>
+                {% if error %}<div style="background:#fef2f2; color:#ef4444; padding:10px 14px; border-radius:8px; margin-bottom:16px; border:1px solid #fecaca; font-size:.85rem;">{{ error }}</div>{% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="notif_type">
+                            <option value="tuition">💰 Tuition Deadline</option>
+                            <option value="enrollment">📋 Enrollment Update</option>
+                            <option value="general">📢 General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" placeholder="e.g. Tuition Fee Deadline Alert" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" rows="4" placeholder="Enter notification message…" required style="resize:vertical;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-indigo" style="width:100%; justify-content:center;">
+                        <i class="fa fa-paper-plane"></i> Send to All Students
+                    </button>
+                </form>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:18px;">Sent Notifications</h3>
+                {% if notifications %}
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    {% for notif in notifications %}
+                    <div style="padding:14px 16px; background:#f8fafc; border-radius:10px; border-left:4px solid {% if notif.notif_type == 'tuition' %}#f59e0b{% elif notif.notif_type == 'enrollment' %}#4f46e5{% else %}#10b981{% endif %}; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                        <div>
+                            <div style="font-weight:600; font-size:.9rem; color:#1e293b; margin-bottom:4px;">{{ notif.title }}</div>
+                            <div style="font-size:.82rem; color:#64748b;">{{ notif.message|truncatechars:80 }}</div>
+                            <div style="font-size:.75rem; color:#94a3b8; margin-top:4px;">{{ notif.created_at|date:"M d, Y H:i" }}</div>
+                        </div>
+                        <form method="post" action="{% url 'admin_notification_delete' notif.id %}" onsubmit="return confirm('Delete this notification?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-red" title="Delete"><i class="fa fa-trash"></i></button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align:center; color:#94a3b8; padding:30px 0;">No notifications sent yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

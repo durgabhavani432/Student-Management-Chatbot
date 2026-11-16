@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Manage Appointment{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header">
+            <a href="{% url 'admin_appointments' %}" style="color:#4f46e5; font-size:.85rem; text-decoration:none; display:inline-block; margin-bottom:10px;"><i class="fa fa-arrow-left"></i> Back to Appointments</a>
+            <h1>📅 Appointment #{{ appt.id }}</h1>
+            <p>Submitted by {{ appt.student.username }} on {{ appt.created_at|date:"M d, Y H:i" }}</p>
+        </div>
+
+        {% if error %}
+        <div style="background:#fef2f2;color:#ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;border:1px solid #fecaca;font-size:.88rem;">{{ error }}</div>
+        {% endif %}
+
+        <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:24px; align-items:start;">
+
+            <!-- Action Form -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:20px;">⚙️ Take Action</h3>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>Admin Notes / Response</label>
+                        <textarea name="admin_notes" rows="4" placeholder="Add notes for the student (e.g. confirmed time or reason for cancellation)...">{{ appt.admin_notes }}</textarea>
+                    </div>
+
+                    {% if appt.status == 'pending' or appt.status == 'rescheduled' %}
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                        <div class="form-group">
+                            <label>Confirmed Date</label>
+                            <input type="date" name="confirmed_date" value="{{ appt.confirmed_date|date:'Y-m-d'|default:appt.preferred_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmed Time</label>
+                            <input type="time" name="confirmed_time" value="{{ appt.confirmed_time|time:'H:i'|default:appt.preferred_time|time:'H:i' }}">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+                        {% if appt.status == 'pending' or appt.status == 'rescheduled' %}
+                        <button type="submit" name="action" value="confirm" class="btn btn-green" style="flex:1; justify-content:center;">
+                            <i class="fa fa-check"></i> Confirm
+                        </button>
+                        {% endif %}
+                        {% if appt.status == 'confirmed' %}
+                        <button type="submit" name="action" value="complete" class="btn btn-indigo" style="flex:1; justify-content:center;">
+                            <i class="fa fa-flag-checkered"></i> Mark Completed
+                        </button>
+                        {% endif %}
+                        {% if appt.status != 'cancelled' and appt.status != 'completed' %}
+                        <button type="submit" name="action" value="cancel"
+                                style="padding:11px 20px;background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:9px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;"
+                                onclick="return confirm('Cancel this appointment?')">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            <!-- Appointment Details -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:16px;">📋 Appointment Details</h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Student</span>
+                        <span style="font-weight:600; font-size:.85rem;">{{ appt.student.username }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Topic</span>
+                        <span style="font-weight:600; font-size:.85rem;">{{ appt.get_topic_display }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Mode</span>
+                        <span style="font-weight:600; font-size:.85rem;">
+                            {% if appt.mode == 'in_person' %}🏢 In-Person
+                            {% elif appt.mode == 'call' %}📞 Phone Call
+                            {% elif appt.mode == 'chat' %}💬 Chat{% endif %}
+                        </span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Preferred Date</span>
+                        <span style="font-weight:600; font-size:.85rem;">{{ appt.preferred_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Preferred Time</span>
+                        <span style="font-weight:600; font-size:.85rem;">{{ appt.preferred_time|time:"H:i" }}</span>
+                    </div>
+                    {% if appt.confirmed_date %}
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f0fdf4; border-radius:9px;border:1px solid #bbf7d0;">
+                        <span style="font-size:.85rem; color:#166534;">Confirmed Slot</span>
+                        <span style="font-weight:600; font-size:.85rem; color:#166534;">{{ appt.confirmed_date }} {{ appt.confirmed_time|time:"H:i"|default:"—" }}</span>
+                    </div>
+                    {% endif %}
+                    <div style="display:flex; justify-content:space-between; padding:10px 14px; background:#f8fafc; border-radius:9px;">
+                        <span style="font-size:.85rem; color:#64748b;">Status</span>
+                        <span style="font-weight:700; font-size:.85rem;
+                            color:{% if appt.status == 'confirmed' %}#166534{% elif appt.status == 'pending' %}#854d0e{% elif appt.status == 'cancelled' %}#991b1b{% else %}#4f46e5{% endif %}">
+                            {{ appt.get_status_display }}
+                        </span>
+                    </div>
+                    {% if appt.description %}
+                    <div style="background:#f8fafc; padding:12px 14px; border-radius:9px;">
+                        <div style="font-size:.8rem; color:#64748b; margin-bottom:4px;">Student's Description</div>
+                        <div style="font-size:.87rem; color:#1e293b;">{{ appt.description }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

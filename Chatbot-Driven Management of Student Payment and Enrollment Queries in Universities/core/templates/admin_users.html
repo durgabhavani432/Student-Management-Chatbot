@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1>👥 User Management</h1>
+                <p>Manage student accounts — view, activate/deactivate, or remove students</p>
+            </div>
+            <a href="{% url 'admin_add_user' %}" class="btn btn-green">
+                <i class="fa fa-user-plus"></i> Add New Student
+            </a>
+        </div>
+
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td><strong>{{ student.username }}</strong></td>
+                            <td>{{ student.get_full_name|default:"—" }}</td>
+                            <td>{{ student.email|default:"—" }}</td>
+                            <td style="white-space:nowrap; color:#94a3b8;">{{ student.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                {% if student.is_active %}
+                                    <span class="badge badge-green">Active</span>
+                                {% else %}
+                                    <span class="badge badge-red">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <form method="post" action="{% url 'admin_toggle_user' student.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm {% if student.is_active %}btn-amber{% else %}btn-green{% endif %}">
+                                        {% if student.is_active %}<i class="fa fa-user-slash"></i> Deactivate{% else %}<i class="fa fa-user-check"></i> Activate{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'admin_delete_user' student.id %}" onsubmit="return confirm('Delete {{ student.username }}? This cannot be undone.')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-red"><i class="fa fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No students found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

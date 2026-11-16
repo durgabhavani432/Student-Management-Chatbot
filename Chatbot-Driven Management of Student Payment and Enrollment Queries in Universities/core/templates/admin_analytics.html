@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Analytics & Reports{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block body %}
+<div class="admin-layout">
+    {% include 'admin_sidebar.html' %}
+    <main class="admin-main">
+        <div class="page-header"
+            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1>Analytics & Reports</h1>
+                <p>Chatbot usage stats, most asked questions, and rating trends</p>
+            </div>
+            <a href="{% url 'admin_export_csv' %}" class="btn btn-green">
+                <i class="fa fa-file-csv"></i> Export CSV Report
+            </a>
+        </div>
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-indigo"><i class="fa fa-users"></i></div>
+                <div>
+                    <div class="kpi-val">{{ total_students }}</div>
+                    <div class="kpi-label">Total Students</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-purple"><i class="fa fa-message"></i></div>
+                <div>
+                    <div class="kpi-val">{{ total_messages }}</div>
+                    <div class="kpi-label">Total Messages</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-amber"><i class="fa fa-star"></i></div>
+                <div>
+                    <div class="kpi-val">{{ avg_rating }}<span style="font-size:1rem;color:#94a3b8;">/5</span></div>
+                    <div class="kpi-label">Avg. Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:24px; margin-bottom:24px;">
+
+            <!-- Daily Messages Chart -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:18px;">📈 Daily Messages (Last 14 Days)</h3>
+                <canvas id="dailyChart" height="100"></canvas>
+            </div>
+
+            <!-- Rating Distribution -->
+            <div class="card">
+                <h3 style="font-size:1rem; font-weight:600; margin-bottom:18px;">⭐ Rating Distribution</h3>
+                <canvas id="ratingChart" height="160"></canvas>
+                <div style="display:flex; flex-direction:column; gap:6px; margin-top:16px;">
+                    {% for star, count in rating_dist.items %}
+                    <div style="display:flex; align-items:center; gap:10px; font-size:.82rem;">
+                        <span style="width:16px; color:#f59e0b; font-weight:700;">{{ star }}★</span>
+                        <div style="flex:1; background:#f1f5f9; border-radius:4px; height:8px; overflow:hidden;">
+                            {% if total_messages > 0 %}
+                            <div
+                                style="width:{{ count|floatformat:0 }}%; background:#f59e0b; height:100%; border-radius:4px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <span style="color:#64748b; width:24px; text-align:right;">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Questions Table -->
+        <div class="card">
+            <h3 style="font-size:1rem; font-weight:600; margin-bottom:18px;">🔥 Most Frequently Asked Questions</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Question / Message</th>
+                            <th>Times Asked</th>
+                            <th>Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in top_questions %}
+                        <tr>
+                            <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                            <td style="max-width:400px;">{{ q.message|truncatechars:80 }}</td>
+                            <td><span class="badge badge-blue">{{ q.cnt }}</span></td>
+                            <td>
+                                <div
+                                    style="width:120px; background:#f1f5f9; border-radius:4px; height:8px; overflow:hidden;">
+                                    {% if top_questions.0.cnt > 0 %}
+                                    <div
+                                        style="width:{{ q.cnt|floatformat:0 }}%; max-width:100%; background:#4f46e5; height:100%; border-radius:4px;">
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align:center; color:#94a3b8; padding:30px;">No chat data yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Daily Messages Bar Chart
+    const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+    new Chart(ctxDaily, {
+        type: 'bar',
+        data: {
+            labels: {{ day_labels| safe }},
+        datasets: [{
+            label: 'Messages',
+            data: {{ daily_counts| safe }},
+        backgroundColor: 'rgba(79,70,229,0.18)',
+        borderColor: '#4f46e5',
+        borderWidth: 2,
+        borderRadius: 6,
+        }]
+    },
+        options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+    // Rating Doughnut Chart
+    const ctxRating = document.getElementById('ratingChart').getContext('2d');
+    new Chart(ctxRating, {
+        type: 'doughnut',
+        data: {
+            labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
+            datasets: [{
+                data: [
+                    {{ rating_dist.1 }}, {{ rating_dist.2 }}, {{ rating_dist.3 }},
+        {{ rating_dist.4 }}, {{ rating_dist.5 }}
+            ],
+        backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#4f46e5'],
+        borderWidth: 0,
+        }]
+    },
+        options: {
+        responsive: true,
+        cutout: '68%',
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+    }
+});
+</script>
+{% endblock %}
