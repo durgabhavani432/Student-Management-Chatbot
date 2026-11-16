@@ -28,6 +28,9 @@ DEBUG = True
 ALLOWED_HOSTS = [ 
     'student-management-chatbot-6.onrender.com',
 ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://student-management-chatbot-6.onrender.com',
+]
 
 
 # Application definition
